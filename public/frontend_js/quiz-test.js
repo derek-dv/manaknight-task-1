@@ -806,9 +806,9 @@ async function nextQuestion(goBack, goBackFromResponse, fromDependedOn) {
             $("#page4 .customImgRow .imgRowInner p").append(`${responseHeader}`);
             responseOnGoing = true;
             hasNoResponse = false;
-            closeResponseTimeout = setTimeout(async () => {
-              closeResponse();
-            }, closeResponseTimeoutCounter);
+            // closeResponseTimeout = setTimeout(async () => {
+            //   closeResponse();
+            // }, closeResponseTimeoutCounter);
           }
         } else if (apiQues.answers && apiQues.answers[0].responseBody) {
           $("#page3").css("display", "none");
@@ -1211,15 +1211,21 @@ async function askQuestion(totalQuizQuestions, counter, fromBack) {
       if (val.answer) {
         $("#typeSelection .answerInner").append(`
           <div class="selectionOptions">
-            <button data-val="${val.answer}" data-id="${val.id}" class="selectionBtns selectionBtn" >${val.answer}</button>
+            <button onClick={checkAllergie(this)} data-val="${val.answer}" data-id="${val.id}" class="selectionBtns selectionBtn" >${val.answer}</button>
           </div>
         `);
       }
     });
+    $("#typeSelection .answerInner").append(`
+          <div class="selectionOptions">
+            <button selectionBtns" onClick={handleNoneOfTheAbove(this)}>None of the above</button>
+          </div>
+        `);
 
     if (alreadyAnswered && alreadyAnswered.answer) {
       if (Array.isArray(alreadyAnswered.answer)) {
         alreadyAnswered.answer.forEach((answer) => {
+          console.log(answer);
           if (!["Banana", "Olive", "Sunflowers"].includes(answer)) {
             $(`#typeSelection button[data-val="${answer}"]`).trigger("click", [true]);
           }
@@ -1228,7 +1234,7 @@ async function askQuestion(totalQuizQuestions, counter, fromBack) {
     } else if (currenQuesAnswerObj && currenQuesAnswerObj.answer && !alreadyAnswered) {
       if (Array.isArray(currenQuesAnswerObj.answer)) {
         currenQuesAnswerObj.answer.forEach((answer) => {
-          if (!["Banana", "Olive", "Sunflowers"].includes(answer)) {
+          if (!["Banan", "Olive", "Sunflowers"].includes(answer)) {
             $(`#typeSelection button[data-val="${answer}"]`).trigger("click", [true]);
           }
         });
