@@ -62,6 +62,7 @@ let nextQuestionTimeoutCounter = 3000;
 let selectionQuestionTimeoutCounter = 6000;
 let closeResponseTimeoutCounter = 5000;
 let timeout;
+let stop = false;
 
 const mainImage = $(".main-image-container img");
 fetch(url_preset + "/configurations")
@@ -163,7 +164,7 @@ function showQuizTitle() {
     $("#page6").css("display", "none");
     $("#page7").css("display", "none");
     $("#progressBarSection").css("display", "block");
-  }, nextQuestionTimeoutCounter);
+  }, stop ? Infinity : nextQuestionTimeoutCounter);
 }
 
 function showPreparingPage() {
@@ -806,9 +807,9 @@ async function nextQuestion(goBack, goBackFromResponse, fromDependedOn) {
             $("#page4 .customImgRow .imgRowInner p").append(`${responseHeader}`);
             responseOnGoing = true;
             hasNoResponse = false;
-            // closeResponseTimeout = setTimeout(async () => {
-            //   closeResponse();
-            // }, closeResponseTimeoutCounter);
+            closeResponseTimeout = setTimeout(async () => {
+              closeResponse();
+            }, stop ? Infinity : closeResponseTimeoutCounter);
           }
         } else if (apiQues.answers && apiQues.answers[0].responseBody) {
           $("#page3").css("display", "none");
@@ -820,7 +821,7 @@ async function nextQuestion(goBack, goBackFromResponse, fromDependedOn) {
           hasNoResponse = false;
           closeResponseTimeout = setTimeout(async () => {
             closeResponse();
-          }, closeResponseTimeoutCounter);
+          }, stop ? Infinity : closeResponseTimeoutCounter);
         }
       } else if (apiQues.type == 3 && apiQues.id == 2 && age) {
         if (age < 25) age = "<25";
@@ -912,7 +913,7 @@ function showResponse(responseHead, responseBody, weatherQuestion) {
   }
   closeResponseTimeout = setTimeout(() => {
     closeResponse();
-  }, closeResponseTimeoutCounter);
+  }, stop ? Infinity : closeResponseTimeoutCounter);
 }
 
 // function to close response page
@@ -1275,7 +1276,6 @@ async function storeAnswer(currentQuestion, currentActiveAnswerType) {
   let answerExists = dataToReturn.findIndex(function (answerObject) {
     return answerObject.question?.id == temp.question?.id;
   });
-  console.log(answerExists);
   if (currentActiveAnswerType == "typeText") {
     ans = $("#" + currentActiveAnswerType + " input").val();
     if (saveResponseInto == "name") {
@@ -1673,7 +1673,7 @@ $(document).on("input", "#myRange", async function (event, isCustom) {
   if (!isCustom) {
     timeout = setTimeout(function () {
       nextQuestion();
-    }, nextQuestionTimeoutCounter);
+    }, stop ? Infinity : nextQuestionTimeoutCounter);
   }
 });
 
@@ -1692,7 +1692,7 @@ $(document).on("click", ".selectionBtn", function (evt, isCustom) {
   if (!isCustom) {
     timeout = setTimeout(function () {
       nextQuestion();
-    }, selectionQuestionTimeoutCounter);
+    }, stop ? Infinity : selectionQuestionTimeoutCounter);
   }
 });
 
@@ -1807,4 +1807,43 @@ function handleNoneOfTheAbove() {
 
 function handleImageMissing(self) {
   $(self).addClass("image-missing");
+}
+
+function checkAllergie(self){
+  event.preventDefault()
+  const val = self.dataset.val
+  if(["Banana", "Olive", "Sunflowers"].includes(val)){
+    console.log(val);
+    terminateQuiz()
+  }
+}
+
+function displayText(counter){
+  document.getElementById('page3').innerHTML = `
+    <div class="last-screen">
+      <h3>All good bla bla bla</h3>
+      <p>A very very long message that sucks!</p>
+      <h1>${counter}</h1>
+    </div>
+    `
+}
+let counter = 10
+function terminateQuiz(){
+  $.ajax({
+    url: url_preset + '/admin/get-config',
+    type: 'GET',
+    success: function(res){
+      const data = res.data
+      console.log(res);
+    }
+  })
+  document.getElementById('progressBarSection').remove()
+  stop = true
+  displayText(counter)
+  setInterval(()=>{
+    if(counter > 0)
+      counter = counter -1
+    else location.href = '/'
+    displayText(counter)
+  }, 1000)
 }

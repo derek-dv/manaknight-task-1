@@ -11,6 +11,7 @@
 const fs = require('fs');
 const path = require('path');
 let Sequelize = require('sequelize');
+const {DataTypes} = require('sequelize')
 const basename = path.basename(__filename);
 const dotenv = require('dotenv');
 dotenv.config();
@@ -38,7 +39,17 @@ let sequelize = new Sequelize(process.env.DB_DATABASE, process.env.DB_USERNAME, 
   },
 });
 
-// sequelize.sync({ force: true });
+const Terminate = sequelize.define('Terminate', {
+  // Model attributes are defined here
+  counter: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  message: {
+    type: DataTypes.STRING
+  }
+}, {
+});
 
 fs.readdirSync(__dirname)
   .filter((file) => {
@@ -54,6 +65,8 @@ Object.keys(db).forEach((modelName) => {
     db[modelName].associate(db);
   }
 });
+
+db['Terminate'] = Terminate
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;

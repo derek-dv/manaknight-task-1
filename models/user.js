@@ -7,13 +7,11 @@
  * @author Ryan Wong
  *
  */
-
 const moment = require("moment");
 const bcrypt = require('bcryptjs');
 const { Op } = require("sequelize");
 const { intersection } = require('lodash');
 const coreModel = require('./../core/models');
-
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
     "user",
